@@ -1,0 +1,641 @@
+{% extends "base.html" %}
+
+{% block title %}Video Consultation - Doctor Appointment System{% endblock %}
+
+{% block styles %}
+<style>
+.video-container {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.video-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: white;
+    text-align: center;
+}
+
+.video-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+}
+
+.video-control-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.video-control-btn:hover {
+    transform: scale(1.1);
+}
+
+.btn-mic {
+    background: #28a745;
+    color: white;
+}
+
+.btn-mic.muted {
+    background: #dc3545;
+}
+
+.btn-camera {
+    background: #007bff;
+    color: white;
+}
+
+.btn-camera.off {
+    background: #dc3545;
+}
+
+.btn-end {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-screen {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-screen.active {
+    background: #28a745;
+}
+
+.participant-video {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 200px;
+    height: 150px;
+    background: #333;
+    border-radius: 8px;
+    border: 2px solid #fff;
+}
+
+.consultation-info {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+}
+
+.consultation-timer {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.connection-status {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+.status-good {
+    background: rgba(40, 167, 69, 0.8) !important;
+}
+
+.status-poor {
+    background: rgba(220, 53, 69, 0.8) !important;
+}
+
+.chat-panel {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 300px;
+    height: 400px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    display: none;
+    flex-direction: column;
+}
+
+.chat-panel.show {
+    display: flex;
+}
+
+.chat-header {
+    padding: 15px;
+    background: #007bff;
+    color: white;
+    border-radius: 8px 8px 0 0;
+    font-weight: bold;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background: #f8f9fa;
+}
+
+.chat-input {
+    padding: 15px;
+    border-top: 1px solid #dee2e6;
+}
+
+.chat-message {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    max-width: 80%;
+}
+
+.chat-message.sent {
+    background: #007bff;
+    color: white;
+    margin-left: auto;
+}
+
+.chat-message.received {
+    background: #e9ecef;
+    color: #333;
+}
+
+.chat-time {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-top: 4px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Consultation Header -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 class="mb-1">Video Consultation</h2>
+                    <p class="text-muted mb-0">
+                        {{ appointment.doctor.full_name }} - {{ appointment.patient.full_name }}
+                    </p>
+                </div>
+                <div class="text-end">
+                    <div class="consultation-timer" id="consultationTimer">00:00:00</div>
+                    <div class="text-muted small">Consultation Duration</div>
+                </div>
+            </div>
+
+            <!-- Video Container -->
+            <div class="video-container" id="videoContainer">
+                <!-- Connection Status -->
+                <div class="connection-status status-good" id="connectionStatus">
+                    <i class="fas fa-wifi"></i> Good Connection
+                </div>
+
+                <!-- Consultation Info -->
+                <div class="consultation-info">
+                    <div class="fw-bold">{{ appointment.token_display }}</div>
+                    <div>{{ appointment.date.strftime('%b %d, %Y') }}</div>
+                    <div>{{ appointment.time_display }}</div>
+                </div>
+
+                <!-- Main Video Area -->
+                <div class="video-placeholder" id="mainVideo">
+                    <div>
+                        <i class="fas fa-video fa-3x mb-3"></i>
+                        <h4>Video Consultation</h4>
+                        <p class="text-muted">Waiting for participants to join...</p>
+                    </div>
+                </div>
+
+                <!-- Participant Video -->
+                <div class="participant-video" id="participantVideo" style="display: none;">
+                    <div class="video-placeholder">
+                        <div>
+                            <i class="fas fa-user fa-2x mb-2"></i>
+                            <p class="mb-0">Participant</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Controls -->
+                <div class="video-controls">
+                    <button class="video-control-btn btn-mic" id="micBtn" title="Toggle Microphone">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button class="video-control-btn btn-camera" id="cameraBtn" title="Toggle Camera">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button class="video-control-btn btn-screen" id="screenBtn" title="Share Screen">
+                        <i class="fas fa-desktop"></i>
+                    </button>
+                    <button class="video-control-btn btn-end" id="endBtn" title="End Call">
+                        <i class="fas fa-phone-slash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Additional Controls -->
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" id="chatBtn">
+                            <i class="fas fa-comment"></i> Chat
+                        </button>
+                        <button class="btn btn-outline-info" id="recordBtn">
+                            <i class="fas fa-record-vinyl"></i> Record
+                        </button>
+                        <button class="btn btn-outline-secondary" id="settingsBtn">
+                            <i class="fas fa-cog"></i> Settings
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="text-muted small">
+                        <i class="fas fa-shield-alt"></i> Consultation is encrypted and secure
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chat Panel -->
+<div class="chat-panel" id="chatPanel">
+    <div class="chat-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <span>Chat</span>
+            <button class="btn btn-sm btn-link text-white p-0" id="closeChatBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+        <!-- Messages will be added here -->
+    </div>
+    <div class="chat-input">
+        <div class="input-group">
+            <input type="text" class="form-control" id="chatInput" placeholder="Type a message...">
+            <button class="btn btn-primary" id="sendChatBtn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Prescription Modal -->
+<div class="modal fade" id="prescriptionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Quick Prescription</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="quickPrescriptionForm">
+                    <div class="mb-3">
+                        <label for="quickDiagnosis" class="form-label">Diagnosis</label>
+                        <textarea class="form-control" id="quickDiagnosis" rows="2" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quickMedicine" class="form-label">Medicine</label>
+                        <input type="text" class="form-control" id="quickMedicine" placeholder="e.g., Paracetamol 500mg">
+                    </div>
+                    <div class="mb-3">
+                        <label for="quickInstructions" class="form-label">Instructions</label>
+                        <input type="text" class="form-control" id="quickInstructions" placeholder="e.g., Take twice daily after meals">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveQuickPrescription">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+class VideoConsultation {
+    constructor() {
+        this.startTime = Date.now();
+        this.timerInterval = null;
+        this.isRecording = false;
+        this.isScreenSharing = false;
+        this.micEnabled = true;
+        this.cameraEnabled = true;
+        
+        this.initializeEventListeners();
+        this.startTimer();
+        this.simulateConnection();
+    }
+
+    initializeEventListeners() {
+        // Microphone toggle
+        document.getElementById('micBtn').addEventListener('click', () => {
+            this.toggleMicrophone();
+        });
+
+        // Camera toggle
+        document.getElementById('cameraBtn').addEventListener('click', () => {
+            this.toggleCamera();
+        });
+
+        // Screen share
+        document.getElementById('screenBtn').addEventListener('click', () => {
+            this.toggleScreenShare();
+        });
+
+        // End call
+        document.getElementById('endBtn').addEventListener('click', () => {
+            this.endCall();
+        });
+
+        // Chat toggle
+        document.getElementById('chatBtn').addEventListener('click', () => {
+            this.toggleChat();
+        });
+
+        document.getElementById('closeChatBtn').addEventListener('click', () => {
+            this.toggleChat();
+        });
+
+        // Chat input
+        document.getElementById('sendChatBtn').addEventListener('click', () => {
+            this.sendChatMessage();
+        });
+
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.sendChatMessage();
+            }
+        });
+
+        // Recording
+        document.getElementById('recordBtn').addEventListener('click', () => {
+            this.toggleRecording();
+        });
+
+        // Quick prescription
+        document.getElementById('saveQuickPrescription').addEventListener('click', () => {
+            this.saveQuickPrescription();
+        });
+    }
+
+    startTimer() {
+        this.timerInterval = setInterval(() => {
+            const elapsed = Date.now() - this.startTime;
+            const hours = Math.floor(elapsed / 3600000);
+            const minutes = Math.floor((elapsed % 3600000) / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            
+            const display = 
+                String(hours).padStart(2, '0') + ':' +
+                String(minutes).padStart(2, '0') + ':' +
+                String(seconds).padStart(2, '0');
+            
+            document.getElementById('consultationTimer').textContent = display;
+        }, 1000);
+    }
+
+    toggleMicrophone() {
+        this.micEnabled = !this.micEnabled;
+        const btn = document.getElementById('micBtn');
+        const icon = btn.querySelector('i');
+        
+        if (this.micEnabled) {
+            btn.classList.remove('muted');
+            icon.className = 'fas fa-microphone';
+            this.showNotification('Microphone enabled', 'success');
+        } else {
+            btn.classList.add('muted');
+            icon.className = 'fas fa-microphone-slash';
+            this.showNotification('Microphone muted', 'warning');
+        }
+    }
+
+    toggleCamera() {
+        this.cameraEnabled = !this.cameraEnabled;
+        const btn = document.getElementById('cameraBtn');
+        const icon = btn.querySelector('i');
+        const mainVideo = document.getElementById('mainVideo');
+        
+        if (this.cameraEnabled) {
+            btn.classList.remove('off');
+            icon.className = 'fas fa-video';
+            mainVideo.innerHTML = `
+                <div>
+                    <i class="fas fa-video fa-3x mb-3"></i>
+                    <h4>Camera Active</h4>
+                    <p class="text-muted">Your camera is now on</p>
+                </div>
+            `;
+            this.showNotification('Camera enabled', 'success');
+        } else {
+            btn.classList.add('off');
+            icon.className = 'fas fa-video-slash';
+            mainVideo.innerHTML = `
+                <div>
+                    <i class="fas fa-video-slash fa-3x mb-3"></i>
+                    <h4>Camera Off</h4>
+                    <p class="text-muted">Your camera is now off</p>
+                </div>
+            `;
+            this.showNotification('Camera disabled', 'warning');
+        }
+    }
+
+    toggleScreenShare() {
+        this.isScreenSharing = !this.isScreenSharing;
+        const btn = document.getElementById('screenBtn');
+        
+        if (this.isScreenSharing) {
+            btn.classList.add('active');
+            this.showNotification('Screen sharing started', 'success');
+        } else {
+            btn.classList.remove('active');
+            this.showNotification('Screen sharing stopped', 'info');
+        }
+    }
+
+    toggleRecording() {
+        this.isRecording = !this.isRecording;
+        const btn = document.getElementById('recordBtn');
+        
+        if (this.isRecording) {
+            btn.classList.remove('btn-outline-info');
+            btn.classList.add('btn-danger');
+            btn.innerHTML = '<i class="fas fa-stop"></i> Stop Recording';
+            this.showNotification('Recording started', 'success');
+        } else {
+            btn.classList.remove('btn-danger');
+            btn.classList.add('btn-outline-info');
+            btn.innerHTML = '<i class="fas fa-record-vinyl"></i> Record';
+            this.showNotification('Recording stopped', 'info');
+        }
+    }
+
+    toggleChat() {
+        const chatPanel = document.getElementById('chatPanel');
+        chatPanel.classList.toggle('show');
+    }
+
+    sendChatMessage() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        
+        if (message) {
+            this.addChatMessage(message, 'sent');
+            input.value = '';
+            
+            // Simulate response after 2 seconds
+            setTimeout(() => {
+                this.addChatMessage('Message received. I will respond shortly.', 'received');
+            }, 2000);
+        }
+    }
+
+    addChatMessage(message, type) {
+        const messagesContainer = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${type}`;
+        
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        messageDiv.innerHTML = `
+            <div>${message}</div>
+            <div class="chat-time">${time}</div>
+        `;
+        
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    simulateConnection() {
+        // Simulate connection quality changes
+        setInterval(() => {
+            const status = document.getElementById('connectionStatus');
+            const isGood = Math.random() > 0.1;
+            
+            if (isGood) {
+                status.className = 'connection-status status-good';
+                status.innerHTML = '<i class="fas fa-wifi"></i> Good Connection';
+            } else {
+                status.className = 'connection-status status-poor';
+                status.innerHTML = '<i class="fas fa-wifi"></i> Poor Connection';
+            }
+        }, 10000);
+
+        // Simulate participant joining after 3 seconds
+        setTimeout(() => {
+            const participantVideo = document.getElementById('participantVideo');
+            const mainVideo = document.getElementById('mainVideo');
+            
+            participantVideo.style.display = 'block';
+            mainVideo.innerHTML = `
+                <div>
+                    <i class="fas fa-user fa-3x mb-3"></i>
+                    <h4>{{ appointment.patient.full_name if current_user.is_doctor() else appointment.doctor.full_name }}</h4>
+                    <p class="text-muted">Connected</p>
+                </div>
+            `;
+            
+            this.showNotification('Participant joined the consultation', 'success');
+        }, 3000);
+    }
+
+    saveQuickPrescription() {
+        const diagnosis = document.getElementById('quickDiagnosis').value;
+        const medicine = document.getElementById('quickMedicine').value;
+        const instructions = document.getElementById('quickInstructions').value;
+        
+        if (diagnosis) {
+            // In a real implementation, this would save to the database
+            this.showNotification('Prescription saved successfully', 'success');
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('prescriptionModal'));
+            modal.hide();
+            
+            // Clear form
+            document.getElementById('quickPrescriptionForm').reset();
+        } else {
+            this.showNotification('Diagnosis is required', 'warning');
+        }
+    }
+
+    showNotification(message, type) {
+        // Create a simple notification (in production, use a proper notification system)
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 3 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 3000);
+    }
+
+    endCall() {
+        if (confirm('Are you sure you want to end this consultation?')) {
+            clearInterval(this.timerInterval);
+            
+            // In a real implementation, this would:
+            // 1. End the video call
+            // 2. Save consultation data
+            // 3. Update appointment status
+            // 4. Redirect to appointment details
+            
+            this.showNotification('Consultation ended successfully', 'success');
+            
+            setTimeout(() => {
+                window.location.href = '{{ url_for("doctor.appointment_detail" if current_user.is_doctor() else "patient.appointment_detail", appointment_id=appointment.id) }}';
+            }, 2000);
+        }
+    }
+}
+
+// Initialize video consultation when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const consultation = new VideoConsultation();
+    
+    // Add welcome message
+    setTimeout(() => {
+        consultation.addChatMessage('Welcome to the video consultation. Please wait for the doctor to join.', 'received');
+    }, 1000);
+});
+</script>
+{% endblock %}

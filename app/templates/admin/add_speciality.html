@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Add Speciality - Doctor Appointment System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Speciality</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('admin.specialities') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Specialities
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Add New Medical Speciality</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Speciality Name *</label>
+                        <input type="text" class="form-control" id="name" name="name" required
+                               placeholder="e.g., Cardiology, Neurology, Pediatrics">
+                        <div class="form-text">Enter the medical speciality name</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="4"
+                                  placeholder="Brief description of the medical speciality..."></textarea>
+                        <div class="form-text">Optional: Provide a brief description of what this speciality covers</div>
+                    </div>
+                    
+                    <!-- Guidelines -->
+                    <div class="alert alert-info mb-4">
+                        <h6 class="alert-heading"><i class="fas fa-info-circle"></i> Guidelines</h6>
+                        <ul class="mb-0">
+                            <li>Use standard medical terminology</li>
+                            <li>Keep names concise and professional</li>
+                            <li>Ensure the speciality name is unique</li>
+                            <li>Provide clear descriptions for patient understanding</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin.specialities') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-info">
+                            <i class="fas fa-save"></i> Add Speciality
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Common Specialities Reference -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">Common Medical Specialities</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6 class="text-primary">Internal Medicine</h6>
+                        <ul class="list-unstyled">
+                            <li>• Cardiology</li>
+                            <li>• Neurology</li>
+                            <li>• Endocrinology</li>
+                            <li>• Gastroenterology</li>
+                            <li>• Nephrology</li>
+                            <li>• Pulmonology</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-success">Surgical Specialities</h6>
+                        <ul class="list-unstyled">
+                            <li>• General Surgery</li>
+                            <li>• Orthopedics</li>
+                            <li>• Neurosurgery</li>
+                            <li>• Cardiac Surgery</li>
+                            <li>• Plastic Surgery</li>
+                            <li>• Urology</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-warning">Other Specialities</h6>
+                        <ul class="list-unstyled">
+                            <li>• Pediatrics</li>
+                            <li>• Obstetrics & Gynecology</li>
+                            <li>• Dermatology</li>
+                            <li>• Psychiatry</li>
+                            <li>• Radiology</li>
+                            <li>• Anesthesiology</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const nameInput = document.getElementById('name');
+    
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        const name = nameInput.value.trim();
+        
+        // Basic validation
+        if (name.length < 2) {
+            e.preventDefault();
+            showAlert('Speciality name must be at least 2 characters long', 'danger');
+            return false;
+        }
+        
+        // Check for special characters (only allow letters, spaces, and hyphens)
+        if (!/^[a-zA-Z\s\-]+$/.test(name)) {
+            e.preventDefault();
+            showAlert('Speciality name can only contain letters, spaces, and hyphens', 'danger');
+            return false;
+        }
+        
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        showLoading(submitBtn);
+    });
+    
+    // Auto-format name input
+    nameInput.addEventListener('input', function() {
+        // Convert to title case
+        this.value = this.value.replace(/\b\w/g, function(match) {
+            return match.toUpperCase();
+        });
+    });
+});
+</script>
+{% endblock %}

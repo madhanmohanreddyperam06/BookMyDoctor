@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Add Doctor - Doctor Appointment System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Doctor</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('admin.doctors') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Doctors
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Doctor Registration Form</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <!-- Account Information -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-muted mb-3">Account Information</h6>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email Address *</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                            <div class="form-text">This will be used for login</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="password" class="form-label">Password *</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <div class="form-text">Minimum 6 characters</div>
+                        </div>
+                    </div>
+
+                    <!-- Personal Information -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-muted mb-3">Personal Information</h6>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="first_name" class="form-label">First Name *</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="last_name" class="form-label">Last Name *</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="experience_years" class="form-label">Years of Experience</label>
+                            <input type="number" class="form-control" id="experience_years" name="experience_years" min="0" max="50">
+                        </div>
+                    </div>
+
+                    <!-- Professional Information -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-muted mb-3">Professional Information</h6>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="speciality_id" class="form-label">Speciality *</label>
+                            <select class="form-select" id="speciality_id" name="speciality_id" required>
+                                <option value="">Select Speciality</option>
+                                {% for speciality in specialities %}
+                                <option value="{{ speciality.id }}">{{ speciality.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="consultation_mode" class="form-label">Consultation Mode *</label>
+                            <select class="form-select" id="consultation_mode" name="consultation_mode" required>
+                                <option value="">Select Mode</option>
+                                <option value="online">Online</option>
+                                <option value="offline">Offline</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="consultation_fee" class="form-label">Consultation Fee ($) *</label>
+                            <input type="number" class="form-control" id="consultation_fee" name="consultation_fee" 
+                                   step="0.01" min="0" required>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-muted mb-3">Additional Information</h6>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="qualifications" class="form-label">Qualifications</label>
+                            <textarea class="form-control" id="qualifications" name="qualifications" rows="3"
+                                      placeholder="e.g., MBBS, MD in Cardiology, Fellow of American College of Cardiology"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Important Notice -->
+                    <div class="alert alert-warning mb-4">
+                        <h6 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Important Notice</h6>
+                        <p class="mb-2">
+                            <strong>Consultation Mode Rules:</strong>
+                        </p>
+                        <ul class="mb-0">
+                            <li><strong>Online Mode:</strong> Doctor will conduct video consultations</li>
+                            <li><strong>Offline Mode:</strong> Doctor will see patients at the clinic/hospital</li>
+                            <li><strong>Strict Separation:</strong> A doctor cannot be both online and offline</li>
+                            <li><strong>Mode Change:</strong> Consultation mode cannot be changed after registration</li>
+                        </ul>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin.doctors') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Add Doctor
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Speciality Information Card -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">Available Specialities</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for speciality in specialities %}
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="badge bg-primary me-2">{{ speciality.name }}</div>
+                            {% if speciality.description %}
+                            <small class="text-muted">{{ speciality.description }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.querySelector('form');
+    const consultationMode = document.getElementById('consultation_mode');
+    const consultationFee = document.getElementById('consultation_fee');
+    
+    // Set minimum consultation fee based on mode
+    consultationMode.addEventListener('change', function() {
+        if (this.value === 'online') {
+            consultationFee.min = '50';
+            consultationFee.placeholder = 'Minimum $50 for online consultations';
+        } else if (this.value === 'offline') {
+            consultationFee.min = '30';
+            consultationFee.placeholder = 'Minimum $30 for offline consultations';
+        }
+    });
+    
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const firstName = document.getElementById('first_name').value;
+        const lastName = document.getElementById('last_name').value;
+        
+        // Basic validation
+        if (password.length < 6) {
+            e.preventDefault();
+            showAlert('Password must be at least 6 characters long', 'danger');
+            return false;
+        }
+        
+        if (!firstName.trim() || !lastName.trim()) {
+            e.preventDefault();
+            showAlert('Please enter both first and last names', 'danger');
+            return false;
+        }
+        
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        showLoading(submitBtn);
+    });
+});
+</script>
+{% endblock %}

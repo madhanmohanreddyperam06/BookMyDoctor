@@ -1,0 +1,616 @@
+/* Custom styles for Doctor Appointment System */
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    margin-left: -15px; /* Offset to align with navbar */
+    margin-right: -15px; /* Offset to align with navbar */
+    padding-left: 15px; /* Restore padding */
+    padding-right: 15px; /* Restore padding */
+}
+
+/* Ensure hero section aligns with navbar */
+.navbar {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Full-width layout adjustments */
+.container-fluid {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override hero section container-fluid padding */
+.hero-section .container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Border utilities for cards */
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+
+/* Card hover effects */
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Badge improvements */
+.badge {
+    font-size: 0.75em;
+}
+
+/* Table improvements */
+.table-responsive {
+    border-radius: 0.35rem;
+}
+
+/* Status badge colors */
+.status-confirmed {
+    background-color: #f6c23e !important;
+}
+
+.status-completed {
+    background-color: #1cc88a !important;
+}
+
+.status-cancelled {
+    background-color: #e74a3b !important;
+}
+
+.status-no-show {
+    background-color: #858796 !important;
+}
+
+/* Consultation mode badges */
+.mode-online {
+    background-color: #4e73df !important;
+}
+
+.mode-offline {
+    background-color: #858796 !important;
+}
+
+/* Calendar styling */
+.calendar-day {
+    min-height: 100px;
+    border: 1px solid #dee2e6;
+    padding: 10px;
+}
+
+.calendar-day:hover {
+    background-color: #f8f9fc;
+}
+
+/* Appointment slot styling */
+.slot-available {
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.slot-available:hover {
+    background-color: #bee5eb;
+}
+
+.slot-booked {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    cursor: not-allowed;
+}
+
+.slot-locked {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    cursor: not-allowed;
+}
+
+/* Prescription styling */
+.prescription-item {
+    border-left: 3px solid #4e73df;
+    padding-left: 15px;
+    margin-bottom: 10px;
+}
+
+/* Form improvements */
+.form-control:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.btn-primary {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+.btn-primary:hover {
+    background-color: #2e59d9;
+    border-color: #2653d4;
+}
+
+/* Loading spinner */
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Login page centering */
+.login-container {
+    min-height: calc(100vh - 200px); /* Full height minus navbar and footer */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    margin: -15px;
+    padding: 15px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 450px;
+}
+
+/* Register page centering */
+.register-container {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    margin: -15px;
+    padding: 15px;
+}
+
+.register-card {
+    width: 100%;
+    max-width: 600px;
+}
+
+/* Enhanced form styling */
+.login-logo, .register-logo {
+    margin-bottom: 2rem;
+}
+
+.login-title, .register-title {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+/* Input group styling */
+.input-group .input-group-text {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border: none;
+    color: white;
+    border-radius: 0.375rem 0 0 0.375rem;
+}
+
+.input-group .form-control {
+    border-left: none;
+    border-radius: 0 0.375rem 0.375rem 0;
+}
+
+.input-group .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    border-left: none;
+}
+
+/* Form label enhancements */
+.form-label.fw-semibold {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+/* Button enhancements */
+.btn-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0056b3, #004085);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.btn-outline-primary {
+    border: 2px solid #007bff;
+    color: #007bff;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background: #007bff;
+    border-color: #007bff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+/* Card enhancements */
+.card {
+    border: none;
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.shadow-lg {
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+}
+
+/* Form control enhancements */
+.form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 0.375rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 0.375rem;
+    transition: all 0.3s ease;
+}
+
+.form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+/* Link styling */
+.text-primary {
+    color: #007bff !important;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.text-primary:hover {
+    color: #0056b3 !important;
+    text-decoration: underline;
+}
+
+/* Form check styling */
+.form-check-input:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.form-check-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .login-container, .register-container {
+        padding: 10px;
+        margin: -10px;
+    }
+    
+    .login-card, .register-card {
+        max-width: 100%;
+    }
+    
+    .card-body {
+        padding: 2rem !important;
+    }
+    
+    .login-title, .register-title {
+        font-size: 1.5rem;
+    }
+    
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
+/* Footer full width and black */
+footer {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    margin-top: auto; /* Push footer to bottom */
+}
+
+/* Sticky footer setup for all pages */
+html, body {
+    height: 100%;
+    min-height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+main.container-fluid {
+    flex: 1 0 auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* Ensure wrapper div for content takes full height */
+.content-wrapper {
+    flex: 1 0 auto;
+}
+
+footer .container-fluid {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Key Features Section Styling */
+.features-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    margin-left: -15px;
+    margin-right: -15px;
+    padding: 2rem 0;
+}
+
+.features-section .container-fluid {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.feature-card {
+    background: #ffffff;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Compact Feature Cards */
+.feature-card-compact {
+    background: #ffffff;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    padding: 1.2rem;
+    text-align: center;
+    height: 100%;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.feature-card-compact:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2rem;
+    color: white;
+}
+
+.feature-icon-compact {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.8rem;
+    font-size: 1.2rem;
+    color: white;
+}
+
+.feature-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.feature-title-compact {
+    color: #2c3e50;
+    font-weight: 600;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.3;
+}
+
+.feature-description {
+    color: #6c757d;
+    line-height: 1.6;
+}
+
+/* How It Works Section Styling */
+.how-it-works-section {
+    background: #ffffff;
+    margin-left: -15px;
+    margin-right: -15px;
+    padding: 3rem 0;
+}
+
+.how-it-works-section .container-fluid {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.section-title::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    margin: 1rem auto 0;
+    border-radius: 2px;
+}
+
+.accordion {
+    border: none;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.accordion-item {
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.accordion-item:last-child {
+    border-bottom: none;
+}
+
+.accordion-button {
+    background: #ffffff;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.1rem;
+    padding: 1.5rem;
+    border: none;
+    position: relative;
+}
+
+.accordion-button:not(.collapsed) {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: #ffffff;
+}
+
+.accordion-button::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M1 6h14M1 10h14'/%3e%3c/svg%3e");
+}
+
+.accordion-button:not(.collapsed)::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%232c3e50' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M1 6h14M1 10h14'/%3e%3c/svg%3e");
+}
+
+.accordion-body {
+    background: #f8f9fa;
+    color: #6c757d;
+    font-size: 1rem;
+    line-height: 1.6;
+    padding: 1.5rem;
+}
+
+.step-number {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
+    font-weight: bold;
+    margin-right: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-section {
+        text-align: center;
+    }
+    
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+/* Shift progress bars */
+.shift-progress {
+    height: 20px;
+    background-color: #e9ecef;
+    border-radius: 0.25rem;
+}
+
+.shift-progress .progress-bar {
+    height: 20px;
+    border-radius: 0.25rem;
+    transition: width 0.3s ease;
+}

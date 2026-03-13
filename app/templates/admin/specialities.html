@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Specialities - Doctor Appointment System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Manage Specialities</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('admin.add_speciality') }}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus"></i> Add Speciality
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Specialities Grid -->
+<div class="row">
+    {% for speciality in specialities %}
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">{{ speciality.name }}</h6>
+                <div class="btn-group btn-group-sm">
+                    <a href="#" class="btn btn-outline-warning" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    {% if speciality.is_active %}
+                    <a href="#" class="btn btn-outline-danger" title="Deactivate" data-action="deactivateSpeciality" data-id="{{ speciality.id }}">
+                        <i class="fas fa-ban"></i>
+                    </a>
+                    {% else %}
+                    <a href="#" class="btn btn-outline-success" title="Activate" data-action="activateSpeciality" data-id="{{ speciality.id }}">
+                        <i class="fas fa-check"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <span class="badge bg-{{ 'success' if speciality.is_active else 'danger' }}">
+                        {{ 'Active' if speciality.is_active else 'Inactive' }}
+                    </span>
+                </div>
+                
+                {% if speciality.description %}
+                <p class="card-text">{{ speciality.description }}</p>
+                {% else %}
+                <p class="card-text text-muted">No description available</p>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-user-md"></i> 
+                            {{ speciality.get_active_doctors_count() }} doctors
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-calendar"></i> 
+                            Created {{ speciality.created_at.strftime('%b %d, %Y') }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent">
+                <div class="d-flex justify-content-between">
+                    <a href="#" class="btn btn-sm btn-outline-info" title="View Doctors">
+                        <i class="fas fa-users"></i> View Doctors
+                    </a>
+                    <a href="#" class="btn btn-sm btn-outline-primary" title="View Statistics">
+                        <i class="fas fa-chart-bar"></i> Stats
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="text-center py-5">
+            <i class="fas fa-stethoscope fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No Specialities Found</h5>
+            <p class="text-muted">Start by adding your first medical speciality to the system.</p>
+            <a href="{{ url_for('admin.add_speciality') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add First Speciality
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Statistics Overview -->
+<div class="row mt-4">
+    <div class="col-md-3 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Specialities</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ specialities|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-stethoscope fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Active Specialities</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ specialities|selectattr('is_active')|list|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Doctors</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ specialities|sum(attribute='doctors')|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-md fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Avg Doctors/Speciality</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {% if specialities %}
+                                {{ "%.1f"|format((specialities|sum(attribute='doctors')|length) / specialities|length) }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function activateSpeciality(specialityId) {
+    fetch(`/admin/specialities/${specialityId}/activate`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('Speciality activated successfully!', 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showAlert('Failed to activate speciality', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('An error occurred', 'danger');
+    });
+}
+
+function deactivateSpeciality(specialityId) {
+    fetch(`/admin/specialities/${specialityId}/deactivate`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('Speciality deactivated successfully!', 'warning');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showAlert('Failed to deactivate speciality', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('An error occurred', 'danger');
+    });
+}
+</script>
+{% endblock %}

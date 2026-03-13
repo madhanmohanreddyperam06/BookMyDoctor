@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+
+{% block title %}Book Appointment - Doctor Appointment System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Book Appointment</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('patient.doctor_detail', doctor_id=doctor.id) }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Doctor
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Doctor Information -->
+<div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{{ doctor.full_name }}</h5>
+            <div>
+                <span class="badge bg-light text-primary me-2">{{ doctor.speciality.name }}</span>
+                <span class="badge bg-{{ 'light' if doctor.consultation_mode == 'online' else 'secondary' }}">
+                    {{ doctor.consultation_mode.title() }}
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-dollar-sign text-primary me-2"></i>
+                    <span class="h5 text-primary mb-0">${{ "%.2f"|format(doctor.consultation_fee) }}</span>
+                    <small class="text-muted ms-2">per consultation</small>
+                </div>
+                {% if doctor.qualifications %}
+                <p class="text-muted">{{ doctor.qualifications[:150] }}{% if doctor.qualifications|length > 150 %}...{% endif %}</p>
+                {% endif %}
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="d-flex justify-content-end align-items-center">
+                    <i class="fas fa-star text-warning me-1"></i>
+                    <span class="h6 mb-0">4.8</span>
+                    <small class="text-muted ms-1">(124 reviews)</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Booking Process Steps -->
+<div class="card shadow mb-4">
+    <div class="card-header bg-info text-white">
+        <h6 class="mb-0">Booking Process</h6>
+    </div>
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary text-white" style="width: 50px; height: 50px;">
+                        <span class="h5 mb-0">1</span>
+                    </div>
+                </div>
+                <h6>Select Shift</h6>
+                <p class="text-muted small">Choose an available date and time slot</p>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-secondary text-white" style="width: 50px; height: 50px;">
+                        <span class="h5 mb-0">2</span>
+                    </div>
+                </div>
+                <h6>Select Slot</h6>
+                <p class="text-muted small">Pick a specific time slot with token number</p>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-secondary text-white" style="width: 50px; height: 50px;">
+                        <span class="h5 mb-0">3</span>
+                    </div>
+                </div>
+                <h6>Confirm Booking</h6>
+                <p class="text-muted small">Review and confirm your appointment</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="POST" id="bookingForm">
+    <!-- Available Shifts -->
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <h6 class="m-0 font-weight-bold text-primary">Available Shifts</h6>
+        </div>
+        <div class="card-body">
+            {% if available_shifts %}
+                {% for shift in available_shifts %}
+                <div class="shift-card mb-3 p-3 border rounded {% if loop.first %}border-primary{% else %}border-light{% endif %}" 
+                     id="shift_{{ shift.id }}">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="shift_id" 
+                                       id="shift_radio_{{ shift.id }}" value="{{ shift.id }}" 
+                                       {% if loop.first %}checked{% endif %} required>
+                                <label class="form-check-label" for="shift_radio_{{ shift.id }}">
+                                    <div class="fw-bold">{{ shift.date.strftime('%A, %B %d, %Y') }}</div>
+                                    <div class="text-muted">{{ shift.shift_display }}</div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-{{ 'primary' if shift.consultation_mode == 'online' else 'secondary' }} me-2">
+                                    {{ shift.consultation_mode.title() }}
+                                </span>
+                                <small class="text-muted">{{ shift.get_booked_count() }}/{{ shift.max_patients }} booked</small>
+                            </div>
+                            <div class="progress mt-2" style="height: 8px;">
+                                <div class="progress-bar bg-{{ 'warning' if shift.get_booked_count() >= shift.max_patients * 0.8 else 'success' }}" 
+                                     role="progressbar" 
+                                     style="width: {{ (shift.get_booked_count() / shift.max_patients * 100) if shift.max_patients > 0 else 0 }}%"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            {% if shift.get_booked_count() < shift.max_patients %}
+                            <span class="badge bg-success">Available</span>
+                            {% else %}
+                            <span class="badge bg-danger">Full</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Available Shifts</h5>
+                    <p class="text-muted">This doctor has no available shifts in the next 7 days.</p>
+                    <a href="{{ url_for('patient.doctors') }}" class="btn btn-primary">Find Other Doctors</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Available Slots (shown when shift is selected) -->
+    <div class="card shadow mb-4" id="slotsSection">
+        <div class="card-header">
+            <h6 class="m-0 font-weight-bold text-primary">Available Time Slots</h6>
+        </div>
+        <div class="card-body">
+            <div id="slotsContent">
+                <!-- Slots will be loaded dynamically -->
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted mt-2">Loading available slots...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Summary -->
+    <div class="card shadow mb-4" id="summarySection" style="display: none;">
+        <div class="card-header bg-success text-white">
+            <h6 class="mb-0">Booking Summary</h6>
+        </div>
+        <div class="card-body">
+            <div id="summaryContent">
+                <!-- Summary will be populated dynamically -->
+            </div>
+            
+            <div class="alert alert-info mb-3">
+                <h6 class="alert-heading"><i class="fas fa-info-circle"></i> Important Information</h6>
+                <ul class="mb-0">
+                    <li>You will receive a confirmation email with appointment details</li>
+                    <li>Please arrive 15 minutes before your appointment time</li>
+                    <li>Cancellation is allowed up to 2 hours before appointment</li>
+                    <li>For online consultations, video link will be sent 30 minutes before appointment</li>
+                </ul>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('patient.doctor_detail', doctor_id=doctor.id) }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-success" id="confirmBookingBtn">
+                    <i class="fas fa-check"></i> Confirm Booking
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('bookingForm');
+    const slotsSection = document.getElementById('slotsSection');
+    const summarySection = document.getElementById('summarySection');
+    const slotsContent = document.getElementById('slotsContent');
+    const summaryContent = document.getElementById('summaryContent');
+    const confirmBookingBtn = document.getElementById('confirmBookingBtn');
+    
+    let selectedShift = null;
+    let selectedSlot = null;
+    
+    // Load slots for the initially selected shift
+    loadSlotsForShift(document.querySelector('input[name="shift_id"]:checked')?.value);
+    
+    // Handle shift selection
+    document.querySelectorAll('input[name="shift_id"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Remove highlight from all shift cards
+            document.querySelectorAll('.shift-card').forEach(card => {
+                card.classList.remove('border-primary');
+                card.classList.add('border-light');
+            });
+            
+            // Highlight selected shift
+            const shiftCard = document.getElementById('shift_' + this.value);
+            if (shiftCard) {
+                shiftCard.classList.remove('border-light');
+                shiftCard.classList.add('border-primary');
+            }
+            
+            loadSlotsForShift(this.value);
+        });
+    });
+    
+    function loadSlotsForShift(shiftId) {
+        if (!shiftId) return;
+        
+        selectedShift = shiftId;
+        selectedSlot = null;
+        
+        // Show loading
+        slotsContent.innerHTML = `
+            <div class="text-center py-3">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="text-muted mt-2">Loading available slots...</p>
+            </div>
+        `;
+        
+        // Simulate API call to get slots
+        setTimeout(() => {
+            // This would be an actual API call in production
+            const mockSlots = [
+                { id: 1, token: 1, time: '09:00 - 09:15', available: true },
+                { id: 2, token: 2, time: '09:15 - 09:30', available: true },
+                { id: 3, token: 3, time: '09:30 - 09:45', available: false },
+                { id: 4, token: 4, time: '09:45 - 10:00', available: true },
+                { id: 5, token: 5, time: '10:00 - 10:15', available: true },
+                { id: 6, token: 6, time: '10:15 - 10:30', available: false }
+            ];
+            
+            displaySlots(mockSlots);
+        }, 1000);
+    }
+    
+    function displaySlots(slots) {
+        if (slots.length === 0) {
+            slotsContent.innerHTML = `
+                <div class="text-center py-3">
+                    <i class="fas fa-clock fa-2x text-muted mb-2"></i>
+                    <p class="text-muted">No available slots for this shift</p>
+                </div>
+            `;
+            summarySection.style.display = 'none';
+            return;
+        }
+        
+        let slotsHtml = '<div class="row">';
+        slots.forEach(slot => {
+            slotsHtml += `
+                <div class="col-md-4 mb-3">
+                    <div class="card slot-card ${slot.available ? 'slot-available' : 'slot-booked'}" 
+                         data-slot-id="${slot.id}" data-token="${slot.token}" data-time="${slot.time}">
+                        <div class="card-body text-center">
+                            <div class="h5 mb-1">${slot.time}</div>
+                            <div class="badge bg-primary mb-2">Token #${slot.token}</div>
+                            ${slot.available ? 
+                                '<span class="badge bg-success">Available</span>' : 
+                                '<span class="badge bg-danger">Booked</span>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        slotsHtml += '</div>';
+        
+        slotsContent.innerHTML = slotsHtml;
+        
+        // Add click handlers for available slots
+        document.querySelectorAll('.slot-available').forEach(slotCard => {
+            slotCard.addEventListener('click', function() {
+                selectSlot(this);
+            });
+        });
+    }
+    
+    function selectSlot(slotCard) {
+        // Remove selection from other slots
+        document.querySelectorAll('.slot-card').forEach(card => {
+            card.classList.remove('border-primary', 'bg-light');
+        });
+        
+        // Highlight selected slot
+        slotCard.classList.add('border-primary', 'bg-light');
+        
+        selectedSlot = {
+            id: slotCard.dataset.slotId,
+            token: slotCard.dataset.token,
+            time: slotCard.dataset.time
+        };
+        
+        updateSummary();
+    }
+    
+    function updateSummary() {
+        if (!selectedShift || !selectedSlot) {
+            summarySection.style.display = 'none';
+            return;
+        }
+        
+        const shiftRadio = document.querySelector(`input[name="shift_id"][value="${selectedShift}"]`);
+        const shiftLabel = shiftRadio.nextElementSibling;
+        
+        summaryContent.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Doctor</h6>
+                    <p class="mb-1"><strong>{{ doctor.full_name }}</strong></p>
+                    <p class="text-muted">{{ doctor.speciality.name }} - {{ doctor.consultation_mode.title() }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Appointment Details</h6>
+                    <p class="mb-1">${shiftLabel.querySelector('.fw-bold').textContent}</p>
+                    <p class="mb-1">${shiftLabel.querySelector('.text-muted').textContent}</p>
+                    <p class="mb-1"><strong>Time:</strong> ${selectedSlot.time}</p>
+                    <p class="mb-1"><strong>Token:</strong> #${selectedSlot.token}</p>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Consultation Fee</h6>
+                    <p class="h4 text-primary mb-0">${{ "%.2f"|format(doctor.consultation_fee) }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Payment Method</h6>
+                    <p class="text-muted mb-0">Pay at clinic/hospital</p>
+                </div>
+            </div>
+        `;
+        
+        summarySection.style.display = 'block';
+    }
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        if (!selectedSlot) {
+            e.preventDefault();
+            showAlert('Please select a time slot', 'warning');
+            return;
+        }
+        
+        // Add slot_id to form
+        const slotInput = document.createElement('input');
+        slotInput.type = 'hidden';
+        slotInput.name = 'slot_id';
+        slotInput.value = selectedSlot.id;
+        form.appendChild(slotInput);
+        
+        // Show loading state
+        showLoading(confirmBookingBtn);
+    });
+});
+</script>
+{% endblock %}

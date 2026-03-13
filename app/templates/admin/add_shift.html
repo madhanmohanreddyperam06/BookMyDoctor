@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block title %}Add Shift - Doctor Appointment System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Doctor Shift</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('admin.shifts') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Shifts
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Create Doctor Shift Schedule</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <!-- Doctor Selection -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-muted mb-3">Doctor Information</h6>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="doctor_id" class="form-label">Select Doctor *</label>
+                            <select class="form-select" id="doctor_id" name="doctor_id" required>
+                                <option value="">Choose a doctor</option>
+                                {% for doctor in doctors %}
+                                <option value="{{ doctor.id }}" 
+                                        data-mode="{{ doctor.consultation_mode }}"
+                                        data-fee="{{ doctor.consultation_fee }}">
+                                    {{ doctor.full_name }} - {{ doctor.speciality.name }} ({{ doctor.consultation_mode.title() }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Consultation Mode</label>
+                            <div class="form-control-plaintext">
+                                <span id="consultation_mode_display" class="badge bg-secondary">Select a doctor</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shift Schedule -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-muted mb-3">Shift Schedule</h6>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="date" class="form-label">Date *</label>
+                            <input type="date" class="form-control" id="date" name="date" required>
+                            <div class="form-text">Shift date</div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="shift_type" class="form-label">Shift Type *</label>
+                            <select class="form-select" id="shift_type" name="shift_type" required>
+                                <option value="">Select shift type</option>
+                                <option value="morning">Morning (9:00 AM - 1:00 PM)</option>
+                                <option value="evening">Evening (2:00 PM - 6:00 PM)</option>
+                                <option value="night">Night (7:00 PM - 11:00 PM)</option>
+                                <option value="custom">Custom Time</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="max_patients" class="form-label">Max Patients *</label>
+                            <input type="number" class="form-control" id="max_patients" name="max_patients" 
+                                   value="1" min="1" max="20" required>
+                            <div class="form-text">Maximum patients per shift</div>
+                        </div>
+                    </div>
+
+                    <!-- Time Selection (for custom shifts) -->
+                    <div class="row mb-4" id="custom_time_section" style="display: none;">
+                        <div class="col-md-6 mb-3">
+                            <label for="start_time" class="form-label">Start Time *</label>
+                            <input type="time" class="form-control" id="start_time" name="start_time">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="end_time" class="form-label">End Time *</label>
+                            <input type="time" class="form-control" id="end_time" name="end_time">
+                        </div>
+                    </div>
+
+                    <!-- Slot Configuration -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-muted mb-3">Slot Configuration</h6>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="slot_duration" class="form-label">Slot Duration (minutes) *</label>
+                            <select class="form-select" id="slot_duration" name="slot_duration" required>
+                                <option value="15">15 minutes</option>
+                                <option value="20">20 minutes</option>
+                                <option value="30">30 minutes</option>
+                                <option value="45">45 minutes</option>
+                                <option value="60">60 minutes</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Estimated Slots</label>
+                            <div class="form-control-plaintext">
+                                <span id="estimated_slots" class="badge bg-info">Calculate after setting times</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Important Information -->
+                    <div class="alert alert-warning mb-4">
+                        <h6 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Important Information</h6>
+                        <p class="mb-2">
+                            <strong>Shift Rules:</strong>
+                        </p>
+                        <ul class="mb-0">
+                            <li>Each shift will automatically generate time slots based on the duration</li>
+                            <li>Patients can book available slots on a first-come, first-served basis</li>
+                            <li>Slots will be locked temporarily during booking to prevent conflicts</li>
+                            <li>Each slot will have a unique token number for patient reference</li>
+                            <li>Shift consultation mode must match the doctor's assigned mode</li>
+                        </ul>
+                    </div>
+
+                    <!-- Preview Section -->
+                    <div class="card mb-4" id="preview_section" style="display: none;">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">Shift Preview</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="preview_content">
+                                <!-- Preview will be populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin.shifts') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Create Shift
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const doctorSelect = document.getElementById('doctor_id');
+    const shiftTypeSelect = document.getElementById('shift_type');
+    const dateInput = document.getElementById('date');
+    const maxPatientsInput = document.getElementById('max_patients');
+    const slotDurationSelect = document.getElementById('slot_duration');
+    const customTimeSection = document.getElementById('custom_time_section');
+    const startTimeInput = document.getElementById('start_time');
+    const endTimeInput = document.getElementById('end_time');
+    const previewSection = document.getElementById('preview_section');
+    const previewContent = document.getElementById('preview_content');
+    
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.min = today;
+    
+    // Doctor selection handler
+    doctorSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const mode = selectedOption.dataset.mode;
+        const fee = selectedOption.dataset.fee;
+        
+        if (mode) {
+            document.getElementById('consultation_mode_display').textContent = mode.toUpperCase();
+            document.getElementById('consultation_mode_display').className = 
+                `badge bg-${mode === 'online' ? 'primary' : 'secondary'}`;
+        } else {
+            document.getElementById('consultation_mode_display').textContent = 'Select a doctor';
+            document.getElementById('consultation_mode_display').className = 'badge bg-secondary';
+        }
+        
+        updatePreview();
+    });
+    
+    // Shift type handler
+    shiftTypeSelect.addEventListener('change', function() {
+        const shiftType = this.value;
+        
+        if (shiftType === 'custom') {
+            customTimeSection.style.display = 'block';
+            startTimeInput.required = true;
+            endTimeInput.required = true;
+        } else {
+            customTimeSection.style.display = 'none';
+            startTimeInput.required = false;
+            endTimeInput.required = false;
+            
+            // Set default times for predefined shifts
+            switch (shiftType) {
+                case 'morning':
+                    startTimeInput.value = '09:00';
+                    endTimeInput.value = '13:00';
+                    break;
+                case 'evening':
+                    startTimeInput.value = '14:00';
+                    endTimeInput.value = '18:00';
+                    break;
+                case 'night':
+                    startTimeInput.value = '19:00';
+                    endTimeInput.value = '23:00';
+                    break;
+            }
+        }
+        
+        updatePreview();
+    });
+    
+    // Update preview when any field changes
+    [dateInput, maxPatientsInput, slotDurationSelect, startTimeInput, endTimeInput].forEach(element => {
+        element.addEventListener('change', updatePreview);
+    });
+    
+    function updatePreview() {
+        const doctor = doctorSelect.options[doctorSelect.selectedIndex];
+        const date = dateInput.value;
+        const shiftType = shiftTypeSelect.value;
+        const maxPatients = maxPatientsInput.value;
+        const slotDuration = parseInt(slotDurationSelect.value);
+        const startTime = startTimeInput.value;
+        const endTime = endTimeInput.value;
+        
+        if (!doctor.value || !date || !shiftType || !maxPatients || !slotDuration || !startTime || !endTime) {
+            previewSection.style.display = 'none';
+            return;
+        }
+        
+        // Calculate duration and estimated slots
+        const start = new Date(`2000-01-01T${startTime}`);
+        const end = new Date(`2000-01-01T${endTime}`);
+        const durationMinutes = (end - start) / (1000 * 60);
+        const estimatedSlots = Math.floor(durationMinutes / slotDuration);
+        
+        // Update preview content
+        previewContent.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Doctor:</strong> ${doctor.textContent.split(' - ')[0]}<br>
+                    <strong>Speciality:</strong> ${doctor.textContent.split(' - ')[1]}<br>
+                    <strong>Date:</strong> ${new Date(date + 'T00:00:00').toLocaleDateString('en-US', { 
+                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                </div>
+                <div class="col-md-6">
+                    <strong>Shift:</strong> ${shiftType.charAt(0).toUpperCase() + shiftType.slice(1)}<br>
+                    <strong>Time:</strong> ${startTime} - ${endTime}<br>
+                    <strong>Max Patients:</strong> ${maxPatients}<br>
+                    <strong>Slot Duration:</strong> ${slotDuration} minutes<br>
+                    <strong>Estimated Slots:</strong> ${estimatedSlots}
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('estimated_slots').textContent = `${estimatedSlots} slots`;
+        document.getElementById('estimated_slots').className = 'badge bg-info';
+        
+        previewSection.style.display = 'block';
+    }
+    
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const startTime = new Date(`2000-01-01T${startTimeInput.value}`);
+        const endTime = new Date(`2000-01-01T${endTimeInput.value}`);
+        
+        if (startTime >= endTime) {
+            e.preventDefault();
+            showAlert('End time must be after start time', 'danger');
+            return false;
+        }
+        
+        const durationMinutes = (endTime - startTime) / (1000 * 60);
+        const slotDuration = parseInt(slotDurationSelect.value);
+        
+        if (durationMinutes < slotDuration) {
+            e.preventDefault();
+            showAlert('Shift duration must be at least as long as slot duration', 'danger');
+            return false;
+        }
+        
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        showLoading(submitBtn);
+    });
+});
+</script>
+{% endblock %}

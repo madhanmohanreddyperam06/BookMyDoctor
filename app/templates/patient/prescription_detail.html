@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block title %}Prescription Details - Doctor Appointment System{% endblock %}
+
+{% block styles %}
+<style>
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .prescription-card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        page-break-inside: avoid;
+    }
+    
+    body {
+        font-size: 12px;
+    }
+    
+    .prescription-header {
+        border-bottom: 2px solid #000;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .prescription-footer {
+        border-top: 2px solid #000;
+        padding-top: 10px;
+        margin-top: 20px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Prescription Details</h1>
+    <div class="btn-toolbar mb-2 mb-md-0 no-print">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('patient.medical_history') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Medical History
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Prescription Card -->
+<div class="card shadow prescription-card">
+    <div class="card-header bg-success text-white prescription-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Medical Prescription</h5>
+            <div class="text-end">
+                <div class="fw-bold">Dr. {{ prescription.doctor.full_name }}</div>
+                <div class="small">{{ prescription.doctor.speciality.name }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <!-- Patient Information -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h6 class="text-muted">Patient Information</h6>
+                <table class="table table-sm table-borderless">
+                    <tr>
+                        <td><strong>Name:</strong></td>
+                        <td>{{ prescription.patient.full_name }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Age:</strong></td>
+                        <td>{{ prescription.patient.age }} years</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Gender:</strong></td>
+                        <td>{{ prescription.patient.gender.title() }}</td>
+                    </tr>
+                    {% if prescription.patient.phone %}
+                    <tr>
+                        <td><strong>Phone:</strong></td>
+                        <td>{{ prescription.patient.phone }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if prescription.patient.blood_group %}
+                    <tr>
+                        <td><strong>Blood Group:</strong></td>
+                        <td>{{ prescription.patient.blood_group }}</td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-muted">Prescription Information</h6>
+                <table class="table table-sm table-borderless">
+                    <tr>
+                        <td><strong>Date:</strong></td>
+                        <td>{{ prescription.created_at.strftime('%B %d, %Y') }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Prescription ID:</strong></td>
+                        <td>#{{ prescription.id }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Appointment:</strong></td>
+                        <td>{{ prescription.appointment.date.strftime('%B %d, %Y') }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Token:</strong></td>
+                        <td>{{ prescription.appointment.token_display }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Medical Information -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h6 class="text-muted">Medical Information</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Diagnosis:</strong></label>
+                            <div class="p-2 bg-light rounded">{{ prescription.diagnosis }}</div>
+                        </div>
+                    </div>
+                    {% if prescription.symptoms %}
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Symptoms:</strong></label>
+                            <div class="p-2 bg-light rounded">{{ prescription.symptoms }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Medicines -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h6 class="text-muted">Prescribed Medicines</h6>
+                {% if prescription.get_medicines_list() %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>S.No</th>
+                                    <th>Medicine Name</th>
+                                    <th>Strength</th>
+                                    <th>Dosage</th>
+                                    <th>Frequency</th>
+                                    <th>Duration</th>
+                                    <th>Instructions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for medicine_item in prescription.get_medicines_list() %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td><strong>{{ medicine_item.medicine.name }}</strong></td>
+                                    <td>{{ medicine_item.medicine.strength or '-' }}</td>
+                                    <td>{{ medicine_item.dosage }}</td>
+                                    <td>{{ medicine_item.frequency }}</td>
+                                    <td>{{ medicine_item.duration }}</td>
+                                    <td>{{ medicine_item.instructions or '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        No medicines prescribed for this consultation.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Follow-up Instructions -->
+        {% if prescription.follow_up_instructions or prescription.follow_up_date %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <h6 class="text-muted">Follow-up Instructions</h6>
+                {% if prescription.follow_up_instructions %}
+                <div class="mb-3">
+                    <label class="form-label"><strong>Instructions:</strong></label>
+                    <div class="p-2 bg-light rounded">{{ prescription.follow_up_instructions }}</div>
+                </div>
+                {% endif %}
+                {% if prescription.follow_up_date %}
+                <div class="mb-3">
+                    <label class="form-label"><strong>Follow-up Date:</strong></label>
+                    <div class="p-2 bg-light rounded">{{ prescription.follow_up_date.strftime('%A, %B %d, %Y') }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Doctor's Notes -->
+        {% if prescription.notes %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <h6 class="text-muted">Doctor's Notes</h6>
+                <div class="p-2 bg-light rounded">{{ prescription.notes }}</div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Doctor's Signature -->
+        <div class="row prescription-footer">
+            <div class="col-md-6">
+                <div class="text-center">
+                    <div class="mb-3">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIFNpbXBsZSBzaWduYXR1cmUgbGluZSAtLT4KICA8cGF0aCBkPSJNMjAgNTAgUTEwMCA1MCAxODAgNTAiIHN0cm9rZT0iIzMzNyIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPgogIDxwYXRoIGQ9Ik0zMCA2MCAxNDAgNzAiIHN0cm9rZT0iIzMzNyIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPgo8L3N2Zz4=" alt="Signature" style="height: 60px;">
+                    </div>
+                    <div class="fw-bold">Dr. {{ prescription.doctor.full_name }}</div>
+                    <div class="text-muted">{{ prescription.doctor.speciality.name }}</div>
+                    <div class="text-muted">{{ prescription.doctor.qualifications or 'M.D.' }}</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="text-end">
+                    <div class="small text-muted">
+                        <div>Prescription Date: {{ prescription.created_at.strftime('%B %d, %Y') }}</div>
+                        <div>Valid until: {{ (prescription.created_at + timedelta(days=30)).strftime('%B %d, %Y') }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="card shadow mt-4 no-print">
+    <div class="card-body">
+        <div class="d-flex justify-content-between">
+            <div>
+                <button class="btn btn-primary" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print Prescription
+                </button>
+                <button class="btn btn-outline-secondary ms-2" onclick="downloadPDF()">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+            <div>
+                <a href="{{ url_for('patient.appointment_detail', appointment_id=prescription.appointment.id) }}" 
+                   class="btn btn-outline-info">
+                    <i class="fas fa-calendar"></i> View Appointment
+                </a>
+                <a href="{{ url_for('patient.medical_history') }}" class="btn btn-outline-success ms-2">
+                    <i class="fas fa-file-medical"></i> Medical History
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Important Information -->
+<div class="card shadow mt-4 no-print">
+    <div class="card-header bg-warning text-white">
+        <h6 class="mb-0">Important Information</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="text-primary">Medication Guidelines</h6>
+                <ul>
+                    <li>Take medications exactly as prescribed</li>
+                    <li>Complete the full course of antibiotics</li>
+                    <li>Store medicines in a cool, dry place</li>
+                    <li>Keep medicines away from children</li>
+                    <li>Note any side effects and report to doctor</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-success">When to Contact Doctor</h6>
+                <ul>
+                    <li>If symptoms persist or worsen</li>
+                    <li>If you experience severe side effects</li>
+                    <li>If you have any questions about medications</li>
+                    <li>If new symptoms appear</li>
+                    <li>In case of emergency, visit nearest hospital</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function downloadPDF() {
+    // In a real implementation, this would generate and download a PDF
+    // For now, we'll use the browser's print function which can save as PDF
+    window.print();
+}
+
+// Add print-specific styling
+window.addEventListener('beforeprint', function() {
+    document.body.classList.add('printing');
+});
+
+window.addEventListener('afterprint', function() {
+    document.body.classList.remove('printing');
+});
+</script>
+{% endblock %}

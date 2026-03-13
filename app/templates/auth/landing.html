@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor Appointment System - Home{% endblock %}
+
+{% block content %}
+<div class="hero-section bg-primary text-white py-5 mb-5">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-lg-9">
+                <h1 class="display-4 fw-bold mb-4">Welcome to Doctor Appointment System</h1>
+                <p class="lead mb-4">A comprehensive hospital appointment management system supporting Admin, Doctor, and Patient workflows with strict Online/Offline mode separation.</p>
+                <div class="d-flex gap-3">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg">Login</a>
+                    <a href="{{ url_for('auth.register_patient') }}" class="btn btn-outline-light btn-lg">Register as Patient</a>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="text-center">
+                    <i class="fas fa-hospital-user" style="font-size: 200px;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row mb-5">
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
+                    <h3 class="card-title">Admin</h3>
+                    <p class="card-text">Manage doctors, specialities, shifts, and monitor all appointments with comprehensive reporting.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-md fa-3x text-success mb-3"></i>
+                    <h3 class="card-title">Doctor</h3>
+                    <p class="card-text">View schedules, manage appointments, add prescriptions, and conduct consultations.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-user fa-3x text-info mb-3"></i>
+                    <h3 class="card-title">Patient</h3>
+                    <p class="card-text">Browse doctors, book appointments, access medical history, and manage consultations.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="features-section">
+        <div class="container-fluid">
+            <h2 class="section-title">Key Features</h2>
+            <div class="row justify-content-center">
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
+                    <div class="feature-card-compact">
+                        <div class="feature-icon-compact">
+                            <i class="fas fa-laptop"></i>
+                        </div>
+                        <h5 class="feature-title-compact">Online & Offline</h5>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
+                    <div class="feature-card-compact">
+                        <div class="feature-icon-compact">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h5 class="feature-title-compact">Shift Scheduling</h5>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
+                    <div class="feature-card-compact">
+                        <div class="feature-icon-compact">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                        <h5 class="feature-title-compact">Token Booking</h5>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
+                    <div class="feature-card-compact">
+                        <div class="feature-icon-compact">
+                            <i class="fas fa-file-medical"></i>
+                        </div>
+                        <h5 class="feature-title-compact">Prescriptions</h5>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
+                    <div class="feature-card-compact">
+                        <div class="feature-icon-compact">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h5 class="feature-title-compact">Analytics</h5>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
+                    <div class="feature-card-compact">
+                        <div class="feature-icon-compact">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <h5 class="feature-title-compact">Video Calls</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="how-it-works-section">
+        <div class="container-fluid">
+            <h2 class="section-title">How It Works</h2>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="accordion" id="howItWorks">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#step1">
+                                    <span class="step-number">1</span>
+                                    Admin Setup
+                                </button>
+                            </h2>
+                            <div id="step1" class="accordion-collapse collapse show" data-bs-parent="#howItWorks">
+                                <div class="accordion-body">
+                                    <strong>System Configuration</strong> - Admin creates doctor profiles, assigns specialities, sets consultation modes, and manages the complete system configuration. The admin has full control over doctor availability, shift scheduling, and system settings.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#step2">
+                                    <span class="step-number">2</span>
+                                    Patient Booking
+                                </button>
+                            </h2>
+                            <div id="step2" class="accordion-collapse collapse" data-bs-parent="#howItWorks">
+                                <div class="accordion-body">
+                                    <strong>Easy Appointment Booking</strong> - Patients browse doctors by speciality and consultation mode, view available shifts and time slots, select preferred time, and receive a unique token number. The booking system prevents double booking through transactional locking.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#step3">
+                                    <span class="step-number">3</span>
+                                    Consultation
+                                </button>
+                            </h2>
+                            <div id="step3" class="accordion-collapse collapse" data-bs-parent="#howItWorks">
+                                <div class="accordion-body">
+                                    <strong>Professional Consultation</strong> - Doctors conduct consultations, update appointment status, add prescriptions with medicines and instructions, and provide secure video links for online sessions. Patients receive complete medical care with detailed follow-up information.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

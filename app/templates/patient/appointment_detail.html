@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Appointment Details - Doctor Appointment System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Appointment Details</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('patient.appointments') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Appointments
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Appointment Card -->
+<div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{{ appointment.token_display }}</h5>
+            <div>
+                <span class="badge bg-{{ 'primary' if appointment.consultation_mode == 'online' else 'secondary' }} me-2">
+                    {{ appointment.consultation_mode.title() }}
+                </span>
+                <span class="badge bg-{{ 'success' if appointment.status == 'completed' else 'warning' if appointment.status == 'confirmed' else 'danger' }}">
+                    {{ appointment.status_display }}
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="text-muted">Doctor Information</h6>
+                <div class="mb-3">
+                    <h5>{{ appointment.doctor.full_name }}</h5>
+                    <p class="mb-1"><strong>Speciality:</strong> {{ appointment.doctor.speciality.name }}</p>
+                    <p class="mb-1"><strong>Experience:</strong> {{ appointment.doctor.experience_years or '-' }} years</p>
+                    {% if appointment.doctor.qualifications %}
+                    <p class="mb-1"><strong>Qualifications:</strong> {{ appointment.doctor.qualifications }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-muted">Appointment Information</h6>
+                <div class="mb-3">
+                    <p class="mb-1"><strong>Date:</strong> {{ appointment.date.strftime('%A, %B %d, %Y') }}</p>
+                    <p class="mb-1"><strong>Time:</strong> {{ appointment.time_display }}</p>
+                    <p class="mb-1"><strong>Consultation Fee:</strong> ${{ "%.2f"|format(appointment.consultation_fee) }}</p>
+                    <p class="mb-1"><strong>Payment Status:</strong> 
+                        <span class="badge bg-{{ 'success' if appointment.payment_status == 'paid' else 'warning' }}">
+                            {{ appointment.payment_status_display }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Consultation Mode Specific Information -->
+        <div class="row mt-3">
+            <div class="col-12">
+                {% if appointment.consultation_mode == 'online' %}
+                <div class="alert alert-info">
+                    <h6 class="alert-heading"><i class="fas fa-laptop"></i> Online Consultation</h6>
+                    {% if appointment.video_link %}
+                    <p class="mb-2">
+                        <strong>Video Link:</strong> 
+                        <a href="{{ appointment.video_link }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-video"></i> Join Consultation
+                        </a>
+                    </p>
+                    <p class="mb-0">
+                        <small class="text-muted">The video link will be available 30 minutes before your appointment time.</small>
+                    </p>
+                    {% else %}
+                    <p class="mb-0">
+                        <small class="text-muted">Video consultation link will be provided by the doctor before the appointment.</small>
+                    </p>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="alert alert-secondary">
+                    <h6 class="alert-heading"><i class="fas fa-hospital"></i> Offline Consultation</h6>
+                    <p class="mb-0">
+                        <strong>Location:</strong> Main Medical Center, 123 Hospital Road<br>
+                        <small class="text-muted">Please arrive 15 minutes before your appointment time.</small>
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+{% if appointment.can_be_cancelled() %}
+<div class="card shadow mb-4">
+    <div class="card-header bg-warning text-white">
+        <h6 class="mb-0">Appointment Actions</h6>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-warning mb-3">
+            <i class="fas fa-exclamation-triangle"></i> 
+            You can cancel this appointment up to 2 hours before the scheduled time.
+        </div>
+        <form method="POST" action="{{ url_for('patient.cancel_appointment', appointment_id=appointment.id) }}" 
+              onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-times"></i> Cancel Appointment
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<!-- Prescription Section -->
+{% if appointment.prescription %}
+<div class="card shadow mb-4">
+    <div class="card-header bg-success text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Prescription</h6>
+            <small>Created: {{ appointment.prescription.created_at.strftime('%b %d, %Y %H:%M') }}</small>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <h6 class="text-muted">Diagnosis</h6>
+                <p>{{ appointment.prescription.diagnosis }}</p>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-muted">Symptoms</h6>
+                <p>{{ appointment.prescription.symptoms or 'Not recorded' }}</p>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <h6 class="text-muted">Prescribed Medicines</h6>
+            {% if appointment.prescription.get_medicines_list() %}
+                {% for medicine_item in appointment.prescription.get_medicines_list() %}
+                <div class="prescription-item mb-2">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>{{ medicine_item.medicine.name }}</strong>
+                            {% if medicine_item.medicine.strength %}
+                            <span class="badge bg-primary ms-2">{{ medicine_item.medicine.strength }}</span>
+                            {% endif %}
+                            <div class="text-muted small">{{ medicine_item.full_instruction }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <p class="text-muted">No medicines prescribed</p>
+            {% endif %}
+        </div>
+        
+        {% if appointment.prescription.follow_up_instructions %}
+        <div class="row mb-3">
+            <div class="col-12">
+                <h6 class="text-muted">Follow-up Instructions</h6>
+                <p>{{ appointment.prescription.follow_up_instructions }}</p>
+                {% if appointment.prescription.follow_up_date %}
+                <p class="mb-0">
+                    <strong>Follow-up Date:</strong> {{ appointment.prescription.follow_up_date.strftime('%B %d, %Y') }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if appointment.prescription.notes %}
+        <div class="row">
+            <div class="col-12">
+                <h6 class="text-muted">Doctor's Notes</h6>
+                <div class="alert alert-light">
+                    {{ appointment.prescription.notes }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="text-end mt-3">
+            <a href="{{ url_for('patient.prescription_detail', prescription_id=appointment.prescription.id) }}" 
+               class="btn btn-outline-success btn-sm">
+                <i class="fas fa-print"></i> Print Prescription
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Important Information -->
+<div class="card shadow mb-4">
+    <div class="card-header bg-light">
+        <h6 class="mb-0">Important Information</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="text-primary">Before Your Appointment</h6>
+                <ul>
+                    {% if appointment.consultation_mode == 'online' %}
+                    <li>Test your device camera and microphone</li>
+                    <li>Ensure stable internet connection</li>
+                    <li>Find a quiet, well-lit space</li>
+                    {% else %}
+                    <li>Arrive 15 minutes early</li>
+                    <li>Bring your ID and insurance card</li>
+                    <li>Bring any current medications</li>
+                    {% endif %}
+                    <li>Have your medical history ready</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-success">After Your Appointment</h6>
+                <ul>
+                    <li>Follow the prescription instructions carefully</li>
+                    <li>Note any side effects and contact the doctor if needed</li>
+                    <li>Schedule follow-up appointments as recommended</li>
+                    <li>Keep your medical records updated</li>
+                    <li>Contact the clinic for any emergencies</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contact Information -->
+<div class="card shadow">
+    <div class="card-header bg-info text-white">
+        <h6 class="mb-0">Contact Information</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="text-muted">Hospital/Clinic</h6>
+                <p class="mb-1"><strong>Main Medical Center</strong></p>
+                <p class="mb-1">123 Hospital Road, Medical District</p>
+                <p class="mb-1">Phone: (555) 123-4567</p>
+                <p class="mb-0">Emergency: (555) 911-HELP</p>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-muted">Doctor's Office</h6>
+                <p class="mb-1"><strong>{{ appointment.doctor.full_name }}</strong></p>
+                <p class="mb-1">{{ appointment.doctor.speciality.name }} Department</p>
+                {% if appointment.doctor.phone %}
+                <p class="mb-1">Phone: {{ appointment.doctor.phone }}</p>
+                {% endif %}
+                <p class="mb-0">Email: {{ appointment.doctor.user.email }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
