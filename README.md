@@ -1,10 +1,17 @@
 # Doctor Appointment System
 
+![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
+![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.0+-purple.svg)
+![SQLite](https://img.shields.io/badge/SQLite-3.0+-red.svg)
+![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+
 A comprehensive hospital appointment management system supporting Admin, Doctor, and Patient workflows with strict Online/Offline mode separation.
 
-## Features
+## 📋 Features
 
 ### Admin Role
+
 - **Dashboard Overview**: Total appointments, revenue statistics, doctor/patient counts
 - **Doctor Management**: Add/update/deactivate doctors with specialities and consultation modes
 - **Shift Management**: Create and manage doctor shifts (Morning/Evening/Night)
@@ -12,6 +19,7 @@ A comprehensive hospital appointment management system supporting Admin, Doctor,
 - **System Monitoring**: Track appointment lifecycle and generate reports
 
 ### Doctor Role
+
 - **Schedule Access**: View assigned duty schedules (read-only)
 - **Appointment Handling**: Update appointment status (confirmed/completed/cancelled/no-show)
 - **Prescription Management**: Add diagnosis, medicines, and follow-up instructions
@@ -19,15 +27,17 @@ A comprehensive hospital appointment management system supporting Admin, Doctor,
 - **Offline Consultation**: Display clinic address automatically
 
 ### Patient Role
+
 - **Dashboard**: Toggle between Online/Offline mode, view appointments
 - **Doctor Filtering**: Filter by speciality, availability, and consultation mode
 - **Appointment Booking**: Select available shifts and slots, receive token numbers
 - **Medical History**: View past prescriptions and consultation notes
 - **Online/Offline Appointments**: Access video links or clinic information
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 ### Backend
+
 - **Python 3.8+**
 - **Flask** - Web framework
 - **Flask-SQLAlchemy** - ORM
@@ -40,6 +50,7 @@ A comprehensive hospital appointment management system supporting Admin, Doctor,
 - **PostgreSQL** - Database (Production - optional)
 
 ### Frontend
+
 - **HTML5**
 - **CSS3**
 - **Bootstrap 5**
@@ -47,21 +58,25 @@ A comprehensive hospital appointment management system supporting Admin, Doctor,
 - **Jinja2 Templates**
 
 ### Realtime & Video
+
 - **WebRTC or Jitsi Meet** (planned)
 - **Flask-SocketIO**
 
 ### Charts & Analytics
+
 - **Chart.js**
 
-## Installation
+## 🚀 Installation
 
 ### Prerequisites
+
 - Python 3.8+
 - pip and virtualenv
 
 ### Quick Start
 
 1. **Clone and setup**
+
    ```bash
    git clone <repository-url>
    cd doctor-appointment-system
@@ -75,28 +90,32 @@ A comprehensive hospital appointment management system supporting Admin, Doctor,
    ```
 
 2. **Install dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 3. **Start application** (auto-checks database)
+
    ```bash
    python start.py
    ```
 
 4. **Access the application**
    - Open browser: `http://localhost:5000`
-   - Admin: admin@hospital.com / admin123
-   - Patient: patient1@email.com / patient123
+   - Admin: <admin@hospital.com> / admin123
+   - Patient: <patient1@email.com> / patient123
 
 ### Database Setup
 
 #### SQLite (Default - Development)
+
 - Database: `instance/doctor_appointment_dev.db`
 - Auto-initialized on first run
 - Sample data included
 
 #### Manual Database Management
+
 ```bash
 # Check database status
 python check_database.py
@@ -107,7 +126,7 @@ python init_sqlite.py
 
 ### Project Structure
 
-```
+```text
 doctor-appointment-system/
 ├── 📄 .env                    # Environment variables
 ├── 📄 README.md               # Project documentation
@@ -128,13 +147,15 @@ doctor-appointment-system/
 
 *See `PROJECT_STRUCTURE.md` for detailed structure.*
 
-## Default Login Credentials
+## 🔐 Default Login Credentials
 
 ### Admin
+
 - Email: `admin@hospital.com`
 - Password: `admin123`
 
 ### Doctors
+
 - Dr. John Smith: `dr.smith@hospital.com` / `smith123`
 - Dr. Sarah Johnson: `dr.johnson@hospital.com` / `johnson123`
 - Dr. Michael Wilson: `dr.wilson@hospital.com` / `wilson123`
@@ -142,6 +163,7 @@ doctor-appointment-system/
 - Dr. Robert Davis: `dr.davis@hospital.com` / `davis123`
 
 ### Patients
+
 - Alice Johnson: `patient1@email.com` / `patient123`
 - Bob Smith: `patient2@email.com` / `patient123`
 - Carol Williams: `patient3@email.com` / `patient123`
@@ -149,6 +171,7 @@ doctor-appointment-system/
 ## Features
 
 ### 🎯 Key Features
+
 - **Role-based Access**: Admin, Doctor, Patient workflows
 - **Online/Offline Modes**: Separate consultation modes
 - **Token-based Booking**: Unique appointment tokens
@@ -158,6 +181,7 @@ doctor-appointment-system/
 - **SQLite Database**: Ready-to-use with sample data
 
 ### 🛠️ Technical Features
+
 - **Flask Framework**: Modern web framework
 - **SQLAlchemy ORM**: Database management
 - **Flask-Login**: Authentication system
@@ -168,18 +192,21 @@ doctor-appointment-system/
 ## Development
 
 ### Adding New Features
+
 1. Create models in `app/models/`
 2. Add routes in `app/routes/`
 3. Create templates in `app/templates/`
 4. Update static files in `app/static/`
 
 ### Database Changes
+
 ```bash
 # Reset database with new schema
 python init_sqlite.py
 ```
 
 ### Configuration
+
 - Environment variables in `.env`
 - Database settings in `config.py`
 - Application factory in `app/__init__.py`
@@ -192,48 +219,9 @@ This project is for educational and demonstration purposes.
 
 For issues and questions, please refer to the project documentation.
 
-## Project Structure
+## 📁 Detailed Project Structure
 
-```
-doctor-appointment-system/
-├── app/
-│   ├── __init__.py              # Flask app factory
-│   ├── models/                  # Database models
-│   │   ├── __init__.py
-│   │   ├── user.py             # User model
-│   │   ├── admin.py            # Admin model
-│   │   ├── doctor.py           # Doctor model
-│   │   ├── patient.py          # Patient model
-│   │   ├── speciality.py       # Speciality model
-│   │   ├── shift.py            # Shift model
-│   │   ├── slot.py             # Slot model
-│   │   ├── appointment.py      # Appointment model
-│   │   ├── prescription.py     # Prescription model
-│   │   └── medicine.py         # Medicine model
-│   ├── routes/                  # Application routes
-│   │   ├── __init__.py
-│   │   ├── main.py             # Main routes
-│   │   ├── auth.py             # Authentication routes
-│   │   ├── admin.py            # Admin routes
-│   │   ├── doctor.py           # Doctor routes
-│   │   └── patient.py          # Patient routes
-│   ├── templates/               # HTML templates
-│   │   ├── base.html
-│   │   ├── auth/
-│   │   ├── admin/
-│   │   ├── doctor/
-│   │   └── patient/
-│   └── static/                  # Static files
-│       ├── css/
-│       ├── js/
-│       └── images/
-├── migrations/                  # Database migrations
-├── config.py                   # Configuration
-├── run.py                      # Application entry point
-├── init_db.py                  # Database initialization
-├── requirements.txt            # Python dependencies
-└── README.md                   # This file
-```
+```text
 
 ## Database Schema
 
@@ -250,13 +238,13 @@ The system uses the following main entities:
 - **Prescriptions**: Medical prescriptions with medicines
 - **Medicines**: Available medications database
 
-## Development
+## ⚙️ Advanced Development
 
 ### Environment Variables
 
 Create a `.env` file in the root directory:
 
-```
+```bash
 FLASK_APP=run.py
 FLASK_ENV=development
 SECRET_KEY=your-secret-key-here
@@ -286,7 +274,11 @@ python -m pytest
 python -m pytest --cov=app
 ```
 
-## Contributing
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -294,10 +286,10 @@ python -m pytest --cov=app
 4. Add tests if applicable
 5. Submit a pull request
 
-## License
+## 📞 Support
 
-This project is licensed under the MIT License.
+For support and questions, please open an issue in the repository or contact:
+**Madhan Mohan Reddy**
 
-## Support
-
-For support and questions, please open an issue in the repository.
+- 📧 Email: [madhanmohanreddyperam06@gmail.com](mailto:madhanmohanreddyperam06@gmail.com)
+- 📱 Mobile: +91 9110395993
